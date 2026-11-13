@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#087f45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>RIVAN CSC Manager — Mobile App</title>
+<style>
+:root {
+  --primary: #087f45;
+  --primary-dark: #063b25;
+  --primary-light: #e6f4ed;
+  --bg: #f2f5f3;
+  --card: #ffffff;
+  --text: #14211b;
+  --muted: #607068;
+  --border: #dfe7e2;
+  --danger: #d94a4a;
+  --warning: #d88913;
+  --info: #2563a6;
+  --font: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, Arial, sans-serif;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+body.dark {
+  --bg: #0c120f;
+  --card: #161f1b;
+  --text: #eaf2ee;
+  --muted: #93a39b;
+  --border: #26332c;
+  --primary-light: #1b3026;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.45;
+  overflow-x: hidden;
+  width: 100%;
+}
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; touch-action: manipulation; }
+.hidden { display: none !important; }
+
+/* Login Screen */
+.login-wrap {
+  min-height: 100dvh; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: linear-gradient(145deg, var(--primary-dark), var(--primary));
+}
+.login-card {
+  background: var(--card); color: var(--text); width: min(410px, 100%);
+  border-radius: 26px; padding: 28px 22px; box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+.login-logo {
+  width: 62px; height: 62px; border-radius: 18px; background: var(--primary);
+  color: #fff; display: grid; place-items: center; font-weight: 900; font-size: 21px; margin: 0 auto 12px;
+  box-shadow: 0 8px 20px rgba(8,127,69,0.3);
+}
+.role-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg); padding: 5px; border-radius: 14px; margin: 18px 0; }
+.role-tabs button { padding: 11px; border-radius: 10px; font-weight: 700; background: transparent; color: var(--muted); transition: .2s; }
+.role-tabs button.active { background: var(--card); color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+/* App Layout */
+.app { min-height: 100dvh; display: flex; width: 100%; }
+.sidebar {
+  width: 270px; background: var(--primary-dark); color: #fff;
+  position: fixed; left: 0; top: 0; bottom: 0; padding: calc(18px + var(--safe-top)) 14px 24px;
+  z-index: 50; overflow-y: auto; transition: transform .28s cubic-bezier(.4,0,.2,1);
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; padding: 4px 6px; }
+.logo { width: 44px; height: 44px; border-radius: 13px; background: #fff; color: var(--primary); display: grid; place-items: center; font-weight: 900; flex-shrink: 0; }
+.brand h1 { font-size: 16.5px; line-height: 1.2; }
+.brand small { opacity: .78; font-size: 11px; display: block; }
+.nav-group { font-size: 10px; text-transform: uppercase; letter-spacing: .8px; color: #8ab8a2; margin: 14px 10px 6px; font-weight: 700; }
+.nav { display: grid; gap: 4px; }
+.nav button {
+  background: transparent; color: #d9eee3; text-align: left; padding: 11px 12px;
+  border-radius: 12px; display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 500;
+}
+.nav button.active, .nav button:hover { background: var(--primary); color: #fff; font-weight: 700; }
+.nav-badge { margin-left: auto; background: #d94a4a; color: #fff; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 800; }
+
+.main { margin-left: 270px; width: calc(100% - 270px); min-height: 100dvh; display: flex; flex-direction: column; }
+.top {
+  height: calc(60px + var(--safe-top)); padding-top: var(--safe-top);
+  background: var(--card); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between; padding-left: 16px; padding-right: 16px;
+  position: sticky; top: 0; z-index: 30; backdrop-filter: blur(8px);
+}
+.top-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.menu-btn { display: none; width: 40px; height: 40px; border-radius: 12px; background: var(--bg); font-size: 19px; place-items: center; flex-shrink: 0; }
+.top h2 { font-size: 16.5px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.top-right { display: flex; gap: 7px; align-items: center; flex-shrink: 0; }
+.iconbtn {
+  width: 38px; height: 38px; border-radius: 12px; background: var(--bg);
+  display: grid; place-items: center; position: relative; font-size: 16px;
+}
+.dot { position: absolute; top: 7px; right: 7px; width: 8px; height: 8px; background: var(--danger); border-radius: 50%; }
+.avatar {
+  padding: 0 11px; height: 38px; border-radius: 12px; background: var(--primary);
+  color: #fff; font-weight: 700; font-size: 12px; display: flex; align-items: center; gap: 5px;
+}
+
+.content { padding: 16px; max-width: 1380px; width: 100%; margin: 0 auto; flex: 1; }
+
+/* Hero & Cards */
+.hero {
+  background: linear-gradient(135deg, var(--primary-dark), var(--primary)); color: #fff;
+  border-radius: 22px; padding: 18px; display: flex; justify-content: space-between;
+  gap: 14px; align-items: center; box-shadow: 0 10px 26px rgba(8,127,69,0.22); margin-bottom: 16px;
+}
+.hero h3 { font-size: 18.5px; margin-bottom: 3px; }
+.hero p { opacity: .9; font-size: 12.5px; }
+.hero-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.hero .quick { background: #fff; color: var(--primary); padding: 10px 14px; border-radius: 12px; font-weight: 800; font-size: 13px; }
+.hero .quick.outline { background: rgba(255,255,255,0.16); color: #fff; border: 1px solid rgba(255,255,255,0.32); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+  padding: 14px; box-shadow: 0 3px 12px rgba(0,0,0,0.03);
+}
+.label { font-size: 11.5px; color: var(--muted); font-weight: 600; display: block; }
+.value { font-size: 21px; font-weight: 850; margin-top: 4px; }
+.subtext { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.green { color: #087f45; } .red { color: #d94a4a; } .orange { color: #d88913; } .blue { color: #2563a6; }
+
+.grid2 { display: grid; grid-template-columns: 1.3fr .9fr; gap: 14px; margin-bottom: 16px; }
+.panel { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; margin-bottom: 14px; }
+.panel-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+.panel h3 { font-size: 15.5px; font-weight: 800; }
+
+/* Charts */
+.bars { height: 165px; display: flex; align-items: flex-end; gap: 8px; padding-top: 22px; }
+.bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
+.bar { width: 100%; max-width: 34px; background: linear-gradient(180deg, #18a765, var(--primary)); border-radius: 7px 7px 3px 3px; min-height: 16px; transition: height .3s; }
+.bar-val { font-size: 9.5px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.bar-lbl { font-size: 10.5px; color: var(--muted); margin-top: 5px; font-weight: 600; }
+
+.quickgrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.q {
+  padding: 13px; border: 1px solid var(--border); border-radius: 15px;
+  background: var(--bg); text-align: left; transition: transform .12s;
+}
+.q:active { transform: scale(0.97); }
+.q b { display: block; margin: 4px 0 2px; font-size: 13px; }
+.q small { color: var(--muted); font-size: 11px; }
+
+/* Toolbar, Inputs & Buttons */
+.toolbar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+.search {
+  flex: 1; min-width: 160px; height: 42px; padding: 0 13px; border: 1px solid var(--border);
+  border-radius: 12px; outline: none; background: var(--card); font-size: 13.5px;
+}
+.search:focus { border-color: var(--primary); }
+.btn {
+  height: 40px; padding: 0 14px; border-radius: 12px; background: var(--primary); color: #fff;
+  font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;
+}
+.btn:active { transform: scale(0.98); }
+.btn.sm { height: 32px; padding: 0 10px; font-size: 11.5px; border-radius: 9px; }
+.btn.secondary { background: var(--primary-light); color: var(--primary); }
+.btn.danger { background: #fde8e8; color: #c53030; }
+.btn.danger-solid { background: var(--danger); color: #fff; }
+.btn.warning { background: #fef3c7; color: #b45309; }
+
+/* Tables & Badges */
+.tablewrap { overflow-x: auto; background: var(--card); border: 1px solid var(--border); border-radius: 18px; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+.table th { background: var(--bg); color: var(--muted); font-weight: 700; font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px; }
+.table tr:last-child td { border-bottom: 0; }
+.badge { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+.pending, .late { background: #fff1d5; color: #a86600; }
+.processing, .half { background: #e0f0ff; color: #17619b; }
+.completed, .active, .present, .paid, .approved { background: #dff6e8; color: #087f45; }
+.inactive, .rejected, .cancelled, .absent, .unpaid, .suspended { background: #fde8e8; color: #b91c1c; }
+.refunded { background: #f3e8ff; color: #6b21a8; }
+
+/* Tabs */
+.tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; -webkit-overflow-scrolling: touch; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { padding: 9px 14px; border-radius: 11px; background: var(--card); border: 1px solid var(--border); font-size: 12.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+.tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Modals & Forms */
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none;
+  align-items: center; justify-content: center; padding: 14px; z-index: 60; backdrop-filter: blur(3px);
+}
+.modal.show { display: flex; }
+.modalbox {
+  background: var(--card); width: min(580px, 100%); max-height: 90dvh;
+  overflow-y: auto; border-radius: 22px; padding: 20px; animation: pop .22s ease;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+}
+@keyframes pop { from { transform: scale(.95); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.formgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+.field { display: grid; gap: 5px; }
+.field.full { grid-column: 1 / -1; }
+.field label { font-size: 12px; color: var(--muted); font-weight: 700; }
+.field input, .field select, .field textarea {
+  width: 100%; min-height: 42px; padding: 9px 12px; border: 1px solid var(--border);
+  border-radius: 11px; outline: none; background: var(--bg); font-size: 14px;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--primary); background: var(--card); }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+
+/* Receipt Print Box */
+.receipt-paper {
+  background: #fff; color: #111; border: 2px dashed #cbd5e1; border-radius: 16px;
+  padding: 18px; font-family: 'Courier New', monospace, sans-serif;
+}
+.receipt-paper h2 { color: #087f45; font-family: sans-serif; font-size: 18px; }
+.r-row { display: flex; justify-content: space-between; gap: 10px; padding: 6px 0; border-bottom: 1px dotted #e2e8f0; font-size: 12.5px; }
+
+/* Toast */
+.toast {
+  position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(78px + var(--safe-bottom));
+  background: #063b25; color: #fff; padding: 11px 18px; border-radius: 99px; display: none; z-index: 100;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-size: 13px; font-weight: 600; max-width: 92vw; text-align: center;
+}
+.toast.show { display: block; animation: pop .2s; }
+
+/* Mobile Drawer & Bottom Nav */
+.backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 45; display: none; backdrop-filter: blur(2px); }
+.backdrop.show { display: block; }
+.bottom { display: none; }
+
+/* ==================== RESPONSIVE MOBILE APP EXPERIENCE ==================== */
+@media (max-width: 900px) {
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; width: 100%; }
+  .menu-btn { display: grid; }
+  .content { padding: 12px 12px calc(86px + var(--safe-bottom)); }
+  .grid2 { grid-template-columns: 1fr; }
+  .formgrid { grid-template-columns: 1fr; }
+  .hero { flex-direction: column; align-items: stretch; padding: 16px; }
+  .hero-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .hero .quick { text-align: center; }
+  .cards { grid-template-columns: repeat(2, 1fr); gap: 9px; }
+  .card { padding: 12px; border-radius: 16px; }
+  .value { font-size: 19px; }
+
+  /* Bottom App Navigation Bar */
+  .bottom {
+    position: fixed; display: flex; left: 0; right: 0; bottom: 0;
+    height: calc(64px + var(--safe-bottom)); padding-bottom: var(--safe-bottom);
+    background: var(--card); border-top: 1px solid var(--border); z-index: 35;
+    justify-content: space-around; align-items: center;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+  }
+  .bottom button {
+    background: none; color: var(--muted); font-size: 10.5px; flex: 1; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-weight: 600;
+  }
+  .bottom button.active { color: var(--primary); font-weight: 800; }
+  .bottom button span { font-size: 20px; line-height: 1; }
+  .bottom .fab {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--primary);
+    color: #fff; font-size: 26px; display: grid; place-items: center;
+    margin-top: -24px; box-shadow: 0 6px 18px rgba(8,127,69,0.4); flex: none;
+    border: 3px solid var(--card);
+  }
+}
+
+/* Mobile Card Conversion for Tables (Zero Horizontal Scroll on Phones!) */
+@media (max-width: 768px) {
+  .toolbar { flex-direction: column; align-items: stretch; }
+  .toolbar .search, .toolbar .btn { width: 100%; max-width: 100% !important; }
+
+  /* Bottom-Sheet Style Modals on Mobile */
+  .modal { align-items: flex-end; padding: 0; }
+  .modalbox {
+    width: 100%; max-height: 92dvh; border-radius: 24px 24px 0 0;
+    padding: 18px 16px calc(22px + var(--safe-bottom));
+    animation: slideUp .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .modalbox::before {
+    content: ""; display: block; width: 42px; height: 4px; border-radius: 99px;
+    background: var(--border); margin: -6px auto 12px;
+  }
+  .modal-actions { flex-direction: column-reverse; }
+  .modal-actions .btn, .modal-actions a.btn { width: 100%; height: 44px; }
+
+  /* Responsive Card-Tables */
+  .tablewrap.mobile-cards { background: transparent; border: none; overflow: visible; }
+  .tablewrap.mobile-cards .table,
+  .tablewrap.mobile-cards thead,
+  .tablewrap.mobile-cards tbody,
+  .tablewrap.mobile-cards tr,
+  .tablewrap.mobile-cards td { display: block; width: 100%; }
+  .tablewrap.mobile-cards thead { display: none; }
+  .tablewrap.mobile-cards tr {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 12px 14px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  }
+  .tablewrap.mobile-cards td {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px;
+    padding: 6px 0; border-bottom: 1px dashed var(--border); text-align: right; font-size: 13px;
+  }
+  .tablewrap.mobile-cards td:last-child {
+    border-bottom: none; padding-top: 10px; justify-content: flex-end; flex-wrap: wrap;
+  }
+  .tablewrap.mobile-cards td::before {
+    content: attr(data-label);
+    font-size: 11.5px; font-weight: 700; color: var(--muted); text-align: left; flex-shrink: 0;
+  }
+  .tablewrap.mobile-cards td[data-label=""]::before { display: none; }
+}
+
+@media print {
+  body * { visibility: hidden; }
+  #printArea, #printArea * { visibility: visible; }
+  #printArea { position: fixed; left: 0; top: 0; width: 100%; border: none; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="modal" class="modal" onclick="if(event.target===this)closeModal()"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+// ==================== DATABASE & INITIAL SEED ====================
+const DB_KEY = "RIVAN_CSC_V1_DB";
+
+function getDefaultDB() {
+  const today = new Date().toISOString().slice(0, 10);
+  return {
+    auth: { loggedIn: true, role: "admin", userId: "ADMIN-01", userName: "Ravi Kumar", cscId: "ALL", device: "Mobile/Web App" },
+    branding: {
+      appName: "RIVAN CSC Manager",
+      tagline: "Digital Seva & 100 CSC Network",
+      primary: "#087f45",
+      theme: "light",
+      contact: "+91 98120-00000",
+      footer: "Powered by RIVAN Digital Services • Rohtak, Haryana"
+    },
+    settings: {
+      checkInTime: "09:00",
+      checkOutTime: "18:00",
+      graceMinutes: 15,
+      expenseApprovalLimit: 1000,
+      smsEnabled: true,
+      whatsappEnabled: true,
+      autoBackup: "Daily"
+    },
+    cscs: [
+      { id: "CSC-001", name: "Gudhan CSC (Main)", village: "Gudhan", district: "Rohtak", state: "Haryana", mobile: "9812011111", email: "gudhan@rivancsc.in", manager: "Ravi Kumar", open: "09:00", close: "18:00", status: "Active" },
+      { id: "CSC-002", name: "Kalanaur Digital Kendra", village: "Kalanaur", district: "Rohtak", state: "Haryana", mobile: "9812022222", email: "kalanaur@rivancsc.in", manager: "Sandeep Sharma", open: "09:00", close: "18:00", status: "Active" },
+      { id: "CSC-003", name: "Julana Seva Center", village: "Julana", district: "Jind", state: "Haryana", mobile: "9812033333", email: "julana@rivancsc.in", manager: "Amit Verma", open: "09:30", close: "17:30", status: "Inactive" }
+    ],
+    operators: [
+      { id: "OP-001", name: "Sandeep Sharma", mobile: "9812022222", email: "sandeep@rivancsc.in", cscId: "CSC-002", pass: "1234", joining: "2026-01-15", basicSalary: 12000, status: "Active", deviceApproved: true },
+      { id: "OP-002", name: "Pooja Rani", mobile: "9812044444", email: "pooja@rivancsc.in", cscId: "CSC-001", pass: "1234", joining: "2026-03-01", basicSalary: 11000, status: "Active", deviceApproved: true },
+      { id: "OP-003", name: "Vikram Singh", mobile: "9812055555", email: "vikram@rivancsc.in", cscId: "CSC-001", pass: "1234", joining: "2026-11-01", basicSalary: 10000, status: "Pending", deviceApproved: false }
+    ],
+    services: [
+      { id: "SRV-01", name: "PM Kisan Registration", category: "Agriculture", price: 30, desc: "New farmer registration & eKYC", status: "Active" },
+      { id: "SRV-02", name: "Ayushman Card", category: "Health", price: 30, desc: "PM-JAY Golden Card", status: "Active" },
+      { id: "SRV-03", name: "PAN Card (New/Correction)", category: "Identity", price: 110, desc: "NSDL / UTI PAN application", status: "Active" },
+      { id: "SRV-04", name: "Income Certificate", category: "Revenue", price: 40, desc: "Saral Haryana Income Certificate", status: "Active" },
+      { id: "SRV-05", name: "Caste / Domicile Certificate", category: "Revenue", price: 40, desc: "Haryana Resident & Caste", status: "Active" },
+      { id: "SRV-06", name: "Parivar Pehchan Patra (PPP)", category: "State", price: 30, desc: "Family ID update & correction", status: "Active" },
+      { id: "SRV-07", name: "e-Shram / Pension", category: "Welfare", price: 30, desc: "Old age / Widow pension & e-Shram", status: "Active" },
+      { id: "SRV-08", name: "Printing / Photo / Lamination", category: "Retail", price: 20, desc: "Urgent documents & passport photo", status: "Active" }
+    ],
+    customers: [
+      { id: "CUST-1001", name: "Ramesh Chander", mobile: "9813010101", altMobile: "", village: "Gudhan", district: "Rohtak", state: "Haryana", pincode: "124113", consent: true, notes: "Regular farmer beneficiary", cscId: "CSC-001", createdAt: today },
+      { id: "CUST-1002", name: "Sunita Devi", mobile: "9813020202", altMobile: "9813020203", village: "Kalanaur", district: "Rohtak", state: "Haryana", pincode: "124113", consent: true, notes: "Family ID verified", cscId: "CSC-002", createdAt: today }
+    ],
+    applications: [
+      { id: "RIVAN-2026-0001", customerId: "CUST-1001", customerName: "Ramesh Chander", customerMobile: "9813010101", serviceId: "SRV-01", serviceName: "PM Kisan Registration", amount: 30, paymentMode: "UPI", paymentRef: "UPI8849201", paymentStatus: "Verified", status: "Completed", cscId: "CSC-001", operatorId: "ADMIN-01", operatorName: "Ravi Kumar", date: today, notes: "eKYC done", history: [{ status: "Completed", by: "Ravi Kumar", time: today + " 10:15" }] },
+      { id: "RIVAN-2026-0002", customerId: "CUST-1002", customerName: "Sunita Devi", customerMobile: "9813020202", serviceId: "SRV-04", serviceName: "Income Certificate", amount: 40, paymentMode: "Cash", paymentRef: "CASH-02", paymentStatus: "Pending Verification", status: "Processing", cscId: "CSC-002", operatorId: "OP-001", operatorName: "Sandeep Sharma", date: today, notes: "Patwari report uploaded", history: [{ status: "Processing", by: "Sandeep Sharma", time: today + " 11:05" }] }
+    ],
+    incomes: [
+      { id: "INC-001", title: "App: RIVAN-2026-0001 (PM Kisan)", category: "Service Income", amount: 30, mode: "UPI", ref: "UPI8849201", cscId: "CSC-001", operator: "Ravi Kumar", date: today, auto: true }
+    ],
+    expenses: [
+      { id: "EXP-001", title: "A4 Paper Rim & Ink", category: "Stationery", amount: 450, mode: "Cash", ref: "BILL-19", cscId: "CSC-001", operator: "Ravi Kumar", date: today, status: "Approved" }
+    ],
+    requests: [
+      { id: "REQ-001", type: "Refund", appId: "RIVAN-2026-0002", amount: 40, reason: "Duplicate fee paid by customer", by: "Sandeep Sharma", cscId: "CSC-002", date: today, status: "Pending" }
+    ],
+    attendance: [
+      { id: "ATT-01", operatorId: "OP-001", operatorName: "Sandeep Sharma", cscId: "CSC-002", date: today, checkIn: "08:58", checkOut: "", status: "Present", photoNote: "Selfie Captured" },
+      { id: "ATT-02", operatorId: "OP-002", operatorName: "Pooja Rani", cscId: "CSC-001", date: today, checkIn: "09:22", checkOut: "", status: "Late", photoNote: "Selfie Captured" }
+    ],
+    leaves: [
+      { id: "LV-01", operatorId: "OP-002", operatorName: "Pooja Rani", type: "Casual Leave", from: today, to: today, reason: "Family function", paid: true, status: "Pending" }
+    ],
+    payrolls: [
+      { id: "PAY-01", operatorId: "OP-001", operatorName: "Sandeep Sharma", month: "2026-10", basic: 12000, bonus: 500, deduction: 0, advance: 1000, net: 11500, status: "Paid" }
+    ],
+    documents: [
+      { id: "DOC-01", customerId: "CUST-1001", customerName: "Ramesh Chander", service: "PM Kisan", docType: "Aadhaar & Land Jamabandi", expiry: "2027-12-31", version: "v1", uploadedBy: "Ravi Kumar", date: today }
+    ],
+    notifications: [
+      { id: "NOT-01", title: "New Refund Request", msg: "Sandeep Sharma requested ₹40 refund for RIVAN-2026-0002", time: "10 mins ago", read: false },
+      { id: "NOT-02", title: "Operator Approval Pending", msg: "Vikram Singh (OP-003) awaiting admin activation", time: "1 hour ago", read: false }
+    ],
+    smsLogs: [
+      { id: "SMS-01", to: "9813010101", customer: "Ramesh Chander", event: "Application Completed", channel: "WhatsApp", msg: "Namaste Ramesh Chander, aapka PM Kisan application RIVAN-2026-0001 complete ho gaya hai.", time: today + " 10:16" }
+    ],
+    auditLogs: [
+      { id: "AUD-01", user: "Ravi Kumar", role: "Admin", action: "Status Changed", module: "Applications", detail: "RIVAN-2026-0001: Pending → Completed", time: today + " 10:15" }
+    ],
+    backups: [
+      { id: "BKP-01", date: today + " 08:00", type: "Auto Local Snapshot", by: "System", status: "Success" }
+    ]
+  };
+}
+
+let db = JSON.parse(localStorage.getItem(DB_KEY) || "null") || getDefaultDB();
+let ui = {
+  view: "dashboard",
+  drawerOpen: false,
+  selectedCscFilter: "ALL",
+  loginRole: "admin",
+  reportType: "applications"
+};
+
+function saveDB(auditAction, module, detail) {
+  if (auditAction) {
+    db.auditLogs.unshift({
+      id: "AUD-" + String(db.auditLogs.length + 1).padStart(3, "0"),
+      user: db.auth.userName,
+      role: db.auth.role.toUpperCase(),
+      action: auditAction,
+      module: module || "System",
+      detail: detail || "",
+      time: nowStr()
+    });
+  }
+  localStorage.setItem(DB_KEY, JSON.stringify(db));
+}
+
+function nowStr() {
+  const d = new Date();
+  return d.toISOString().slice(0, 10) + " " + d.toTimeString().slice(0, 5);
+}
+function todayStr() { return new Date().toISOString().slice(0, 10); }
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m])); }
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => t.classList.remove("show"), 2600);
+}
+function openModal(title, bodyHtml) {
+  const m = document.getElementById("modal");
+  m.innerHTML = `<div class="modalbox"><div class="modal-head"><h3>${title}</h3><button class="iconbtn" onclick="closeModal()">✕</button></div>${bodyHtml}</div>`;
+  m.classList.add("show");
+}
+function closeModal() { document.getElementById("modal").classList.remove("show"); }
+function val(id) { return (document.getElementById(id)?.value || "").trim(); }
+
+function applyBranding() {
+  document.documentElement.style.setProperty("--primary", db.branding.primary || "#087f45");
+  document.body.className = db.branding.theme === "dark" ? "dark" : "";
+}
+
+// ==================== AUTH & LOGIN ====================
+function renderLogin() {
+  return `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">CSC</div>
+      <h2 style="text-align:center">${esc(db.branding.appName)}</h2>
+      <p style="text-align:center;color:var(--muted);font-size:12.5px;margin-top:3px">${esc(db.branding.tagline)}</p>
+      <div class="role-tabs">
+        <button class="${ui.loginRole === 'admin' ? 'active' : ''}" onclick="ui.loginRole='admin';render()">Admin Login</button>
+        <button class="${ui.loginRole === 'operator' ? 'active' : ''}" onclick="ui.loginRole='operator';render()">Operator Login</button>
+      </div>
+      ${ui.loginRole === 'admin' ? `
+        <div class="field"><label>Admin ID / Mobile</label><input id="loginId" value="ADMIN-01"></div><br>
+        <div class="field"><label>Password</label><input id="loginPass" type="password" value="admin123"></div><br>
+        <div class="field"><label>OTP Verification (Demo Mode)</label><input id="loginOtp" value="123456" inputmode="numeric"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin:12px 0;font-size:12px">
+          <label><input type="checkbox" checked> Remember device</label>
+          <a href="javascript:void(0)" onclick="toast('Backend OTP required for password reset')" style="color:var(--primary);font-weight:700">Forgot Password?</a>
+        </div>
+        <button class="btn" style="width:100%;height:46px" onclick="doLogin('admin')">🔐 Login as Super Admin</button>
+      ` : `
+        <div class="field"><label>Select Operator ID</label>
+          <select id="opLoginSelect">
+            ${db.operators.map(o => `<option value="${o.id}">${o.id} — ${esc(o.name)} (${o.status})</option>`).join("")}
+          </select>
+        </div><br>
+        <div class="field"><label>Password</label><input id="opPass" type="password" value="1234"></div><br>
+        <div class="field"><label>OTP (Demo)</label><input value="654321" inputmode="numeric"></div><br>
+        <button class="btn" style="width:100%;height:46px" onclick="doLogin('operator')">👨‍💼 Login as Operator</button>
+      `}
+    </div>
+  </div>`;
+}
+
+function doLogin(role) {
+  if (role === "admin") {
+    db.auth = { loggedIn: true, role: "admin", userId: "ADMIN-01", userName: "Ravi Kumar", cscId: "ALL", device: "Mobile App" };
+    saveDB("Admin Login", "Security", "Admin logged in");
+    ui.view = "dashboard";
+    render();
+    toast("Welcome Admin Ravi Kumar!");
+  } else {
+    const opId = val("opLoginSelect");
+    const op = db.operators.find(o => o.id === opId);
+    if (!op) return toast("Operator not found");
+    if (op.status !== "Active") return toast(`Access Blocked: Status is "${op.status}"`);
+    db.auth = { loggedIn: true, role: "operator", userId: op.id, userName: op.name, cscId: op.cscId, device: "Mobile App" };
+    saveDB("Operator Login", "Security", `${op.name} (${op.id}) logged in`);
+    ui.view = "dashboard";
+    render();
+    toast(`Namaste ${op.name}!`);
+  }
+}
+
+function logout() {
+  saveDB("Logout", "Security", `${db.auth.userName} logged out`);
+  db.auth.loggedIn = false;
+  saveDB();
+  render();
+}
+
+// ==================== NAVIGATION & SHELL ====================
+function getMenu() {
+  const pendingReq = db.requests.filter(r => r.status === "Pending").length;
+  const pendingLeaves = db.leaves.filter(l => l.status === "Pending").length;
+  if (db.auth.role === "admin") {
+    return [
+      { group: "Core", items: [
+        { id: "dashboard", icon: "🏠", label: "Admin Dashboard" },
+        { id: "cscs", icon: "🏢", label: "100 CSC Centers" },
+        { id: "operators", icon: "👨‍💼", label: "Operators" },
+        { id: "customers", icon: "👥", label: "Customers" },
+        { id: "applications", icon: "📄", label: "Applications" },
+        { id: "services", icon: "🛠️", label: "Services" }
+      ]},
+      { group: "Finance & Approvals", items: [
+        { id: "finance", icon: "💰", label: "Income, Expense & Profit" },
+        { id: "payments", icon: "💳", label: "Payments & Receipts" },
+        { id: "requests", icon: "↩️", label: "Refunds & Cancels", badge: pendingReq }
+      ]},
+      { group: "HR & Operations", items: [
+        { id: "attendance", icon: "📸", label: "Attendance" },
+        { id: "leaves", icon: "🗓️", label: "Leave Management", badge: pendingLeaves },
+        { id: "payroll", icon: "💵", label: "Salary / Payroll" },
+        { id: "documents", icon: "📁", label: "Document Vault" }
+      ]},
+      { group: "Analytics & System", items: [
+        { id: "reports", icon: "📊", label: "Reports & Export" },
+        { id: "notifications", icon: "🔔", label: "Notifications & SMS" },
+        { id: "branding", icon: "🎨", label: "Branding & Settings" },
+        { id: "security", icon: "🛡️", label: "Backup & Audit Logs" }
+      ]}
+    ];
+  } else {
+    return [
+      { group: "Operator Workspace", items: [
+        { id: "dashboard", icon: "🏠", label: "My Dashboard" },
+        { id: "customers", icon: "👥", label: "Customers" },
+        { id: "applications", icon: "📄", label: "My Applications" },
+        { id: "services", icon: "🛠️", label: "Services & Rates" },
+        { id: "payments", icon: "🧾", label: "Payments & Receipts" },
+        { id: "requests", icon: "↩️", label: "Refund / Cancel Req" },
+        { id: "attendance", icon: "📸", label: "Attendance & Leave" },
+        { id: "documents", icon: "📁", label: "Customer Documents" },
+        { id: "reports", icon: "📊", label: "My Reports" },
+        { id: "profile", icon: "👤", label: "My Profile" }
+      ]}
+    ];
+  }
+}
+
+function go(viewId) {
+  ui.view = viewId;
+  ui.drawerOpen = false;
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// ==================== DATA SCOPING ====================
+function scopedApps() {
+  if (db.auth.role === "operator") return db.applications.filter(a => a.cscId === db.auth.cscId);
+  if (ui.selectedCscFilter !== "ALL") return db.applications.filter(a => a.cscId === ui.selectedCscFilter);
+  return db.applications;
+}
+function scopedCustomers() {
+  if (db.auth.role === "operator") return db.customers.filter(c => c.cscId === db.auth.cscId);
+  if (ui.selectedCscFilter !== "ALL") return db.customers.filter(c => c.cscId === ui.selectedCscFilter);
+  return db.customers;
+}
+function scopedIncomes() {
+  if (db.auth.role === "operator") return db.incomes.filter(i => i.cscId === db.auth.cscId);
+  if (ui.selectedCscFilter !== "ALL") return db.incomes.filter(i => i.cscId === ui.selectedCscFilter);
+  return db.incomes;
+}
+function scopedExpenses() {
+  if (db.auth.role === "operator") return db.expenses.filter(e => e.cscId === db.auth.cscId);
+  if (ui.selectedCscFilter !== "ALL") return db.expenses.filter(e => e.cscId === ui.selectedCscFilter);
+  return db.expenses;
+}
+function cscName(id) { return db.cscs.find(c => c.id === id)?.name || id || "Main CSC"; }
+
+// ==================== VIEWS ====================
+function viewDashboard() {
+  const apps = scopedApps();
+  const custs = scopedCustomers();
+  const incTotal = scopedIncomes().reduce((s, x) => s + Number(x.amount), 0);
+  const expTotal = scopedExpenses().filter(e => e.status === "Approved").reduce((s, x) => s + Number(x.amount), 0);
+  const profit = incTotal - expTotal;
+  const isAdmin = db.auth.role === "admin";
+
+  return `
+  <div class="hero">
+    <div>
+      <h3>Namaste, ${esc(db.auth.userName)} 👋</h3>
+      <p>${isAdmin ? "Super Admin • 100 CSC Network" : `Operator Desk • ${esc(cscName(db.auth.cscId))}`}</p>
+    </div>
+    <div class="hero-actions">
+      <button class="quick" onclick="modalNewCustomer()">＋ Customer</button>
+      <button class="quick outline" onclick="modalNewApplication()">＋ Application</button>
+    </div>
+  </div>
+
+  ${isAdmin ? `
+  <div class="toolbar">
+    <select class="search" onchange="ui.selectedCscFilter=this.value;render()">
+      <option value="ALL" ${ui.selectedCscFilter === "ALL" ? "selected" : ""}>🏢 All CSC Centers (${db.cscs.length})</option>
+      ${db.cscs.map(c => `<option value="${c.id}" ${ui.selectedCscFilter === c.id ? "selected" : ""}>${esc(c.name)} (${c.id})</option>`).join("")}
+    </select>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%">
+      <button class="btn secondary" onclick="go('cscs')">＋ CSC</button>
+      <button class="btn secondary" onclick="modalNewIncome()">＋ Income</button>
+      <button class="btn secondary" onclick="modalNewExpense()">＋ Expense</button>
+    </div>
+  </div>` : ""}
+
+  <div class="cards">
+    ${isAdmin ? `
+      <div class="card"><span class="label">CSC Centers</span><div class="value blue">${db.cscs.length}</div><div class="subtext">${db.cscs.filter(c=>c.status==='Active').length} Active</div></div>
+      <div class="card"><span class="label">Operators</span><div class="value blue">${db.operators.filter(o=>o.status==='Active').length}/${db.operators.length}</div><div class="subtext">${db.operators.filter(o=>o.status==='Pending').length} Pending</div></div>
+    ` : ""}
+    <div class="card"><span class="label">${isAdmin ? "Customers" : "My Customers"}</span><div class="value">${custs.length}</div></div>
+    <div class="card"><span class="label">${isAdmin ? "Applications" : "My Apps"}</span><div class="value">${apps.length}</div></div>
+    <div class="card"><span class="label">Pending</span><div class="value orange">${apps.filter(a=>a.status==="Pending").length}</div></div>
+    <div class="card"><span class="label">Completed</span><div class="value green">${apps.filter(a=>a.status==="Completed").length}</div></div>
+    <div class="card"><span class="label">Total Income</span><div class="value green">₹${incTotal}</div></div>
+    ${isAdmin ? `
+      <div class="card"><span class="label">Net Profit</span><div class="value green">₹${profit}</div></div>
+    ` : ""}
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-head"><h3>📈 Weekly Income Trend</h3><span class="badge active">Live</span></div>
+      <div class="bars">
+        ${[
+          { d: "Mon", v: 420 }, { d: "Tue", v: 680 }, { d: "Wed", v: 540 },
+          { d: "Thu", v: 890 }, { d: "Fri", v: 760 }, { d: "Sat", v: 950 },
+          { d: "Today", v: Math.max(incTotal, 150) }
+        ].map(x => {
+          const pct = Math.min(100, Math.round((x.v / 1100) * 100));
+          return `<div class="bar-col"><span class="bar-val">₹${x.v}</span><div class="bar" style="height:${pct}%"></div><span class="bar-lbl">${x.d}</span></div>`;
+        }).join("")}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>⚡ Quick Actions</h3></div>
+      <div class="quickgrid">
+        <button class="q" onclick="modalNewCustomer()">👤 <b>Add Customer</b><small>KYC & Consent</small></button>
+        <button class="q" onclick="modalNewApplication()">📄 <b>New App</b><small>Auto Receipt</small></button>
+        <button class="q" onclick="go('attendance')">📸 <b>Attendance</b><small>Check-In / Out</small></button>
+        <button class="q" onclick="go('reports')">📊 <b>Reports</b><small>CSV / Print</small></button>
+        ${isAdmin ? `
+          <button class="q" onclick="modalNewService()">🛠️ <b>Add Service</b><small>Sync All CSCs</small></button>
+          <button class="q" onclick="go('requests')">↩️ <b>Approvals</b><small>Refund & Leave</small></button>
+        ` : `
+          <button class="q" onclick="go('payments')">🧾 <b>Receipts</b><small>Print & Share</small></button>
+          <button class="q" onclick="go('profile')">👤 <b>Profile</b><small>ID & Salary</small></button>
+        `}
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>🕒 Recent Applications</h3><button class="btn sm secondary" onclick="go('applications')">All →</button></div>
+    ${renderApplicationsTable(apps.slice(0, 5))}
+  </div>`;
+}
+
+// 3. CSC CENTER MANAGEMENT
+function viewCSCs() {
+  return `
+  <div class="toolbar">
+    <input class="search" id="cscQ" oninput="filterList('cscQ','cscBody')" placeholder="🔍 Search CSC name, ID, village...">
+    <button class="btn" onclick="modalNewCSC()">＋ Add CSC Center</button>
+  </div>
+  <div class="tablewrap mobile-cards">
+    <table class="table">
+      <thead><tr><th>CSC ID</th><th>Center Name</th><th>Location</th><th>Manager</th><th>Timing</th><th>Apps / Income</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody id="cscBody">
+        ${db.cscs.map(c => {
+          const cApps = db.applications.filter(a => a.cscId === c.id).length;
+          const cInc = db.incomes.filter(i => i.cscId === c.id).reduce((s, x) => s + Number(x.amount), 0);
+          return `<tr>
+            <td data-label="CSC ID"><b>${c.id}</b></td>
+            <td data-label="Center"><b>${esc(c.name)}</b><br><small style="color:var(--muted)">${esc(c.mobile)}</small></td>
+            <td data-label="Location">${esc(c.village)}, ${esc(c.district)}</td>
+            <td data-label="Manager">${esc(c.manager)}</td>
+            <td data-label="Timing">${c.open} - ${c.close}</td>
+            <td data-label="Performance">${cApps} Apps • <b class="green">₹${cInc}</b></td>
+            <td data-label="Status"><span class="badge ${c.status.toLowerCase()}">${c.status}</span></td>
+            <td data-label=""><button class="btn sm secondary" onclick="toggleCSCStatus('${c.id}')">Toggle Status</button></td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// 4. OPERATOR MANAGEMENT
+function viewOperators() {
+  return `
+  <div class="toolbar">
+    <input class="search" id="opQ" oninput="filterList('opQ','opBody')" placeholder="🔍 Search operator name, ID, mobile...">
+    <button class="btn" onclick="modalNewOperator()">＋ Add Operator</button>
+  </div>
+  <div class="tablewrap mobile-cards">
+    <table class="table">
+      <thead><tr><th>Operator</th><th>Assigned CSC</th><th>Joining</th><th>Salary</th><th>Performance</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody id="opBody">
+        ${db.operators.map(o => {
+          const handled = db.applications.filter(a => a.operatorId === o.id).length;
+          return `<tr>
+            <td data-label="Operator"><b>${esc(o.name)}</b><br><small style="color:var(--muted)">${o.id} • ${esc(o.mobile)}</small></td>
+            <td data-label="Assigned CSC">${esc(cscName(o.cscId))}</td>
+            <td data-label="Joining">${o.joining}</td>
+            <td data-label="Salary">₹${o.basicSalary}/mo</td>
+            <td data-label="Work">${handled} Apps</td>
+            <td data-label="Status"><span class="badge ${o.status.toLowerCase()}">${o.status}</span></td>
+            <td data-label="" style="display:flex;gap:6px">
+              ${o.status !== "Active" ? `<button class="btn sm" onclick="setOperatorStatus('${o.id}','Active')">Approve</button>` : `<button class="btn sm warning" onclick="setOperatorStatus('${o.id}','Inactive')">Deactivate</button>`}
+              <button class="btn sm secondary" onclick="modalEditOperator('${o.id}')">Edit</button>
+            </td>
+          </tr>`;
+        }).join("")}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// 5. CUSTOMER MANAGEMENT
+function viewCustomers() {
+  const list = scopedCustomers();
+  return `
+  <div class="toolbar">
+    <input class="search" id="custQ" oninput="filterList('custQ','custBody')" placeholder="🔍 Search name, mobile, ID, village...">
+    <button class="btn" onclick="modalNewCustomer()">＋ Add Customer</button>
+  </div>
+  <div class="tablewrap mobile-cards">
+    <table class="table">
+      <thead><tr><th>Customer ID</th><th>Name & Mobile</th><th>Address</th><th>CSC</th><th>Apps</th><th>Action</th></tr></thead>
+      <tbody id="custBody">
+        ${list.map(c => {
+          const appsCount = db.applications.filter(a => a.customerId === c.id).length;
+          return `<tr>
+            <td data-label="Customer ID"><b>${c.id}</b></td>
+            <td data-label="Customer"><b>${esc(c.name)}</b><br><small style="color:var(--muted)">📞 ${esc(c.mobile)}</small></td>
+            <td data-label="Address">${esc(c.village)}, ${esc(c.district)}</td>
+            <td data-label="CSC">${esc(cscName(c.cscId))}</td>
+            <td data-label="History"><span class="badge processing">${appsCount} Apps</span></td>
+            <td data-label=""><button class="btn sm secondary" onclick="viewCustomerProfile('${c.id}')">360° Profile</button></td>
+          </tr>`;
+        }).join("") || `<tr><td colspan="6">No customers found.</td></tr>`}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// 6. APPLICATION MANAGEMENT
+function viewApplications() {
+  const list = scopedApps();
+  return `
+  <div class="toolbar">
+    <input class="search" id="appQ" oninput="filterApps()" placeholder="🔍 Search App ID, Customer, Service...">
+    <select class="search" id="appStFilter" onchange="filterApps()">
+      <option value="ALL">All Status</option>
+      <option>Pending</option><option>Processing</option><option>Completed</option>
+      <option>Cancelled</option><option>Refunded</option>
+    </select>
+    <button class="btn" onclick="modalNewApplication()">＋ New Application</button>
+  </div>
+  <div id="appsTableContainer">${renderApplicationsTable(list)}</div>`;
+}
+
+function renderApplicationsTable(list) {
+  return `<div class="tablewrap mobile-cards">
+    <table class="table">
+      <thead><tr><th>App ID & Date</th><th>Customer</th><th>Service</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        ${list.map(a => `<tr>
+          <td data-label="App ID"><b>${a.id}</b><br><small style="color:var(--muted)">${a.date}</small></td>
+          <td data-label="Customer"><b>${esc(a.customerName)}</b><br><small style="color:var(--muted)">${esc(a.customerMobile)}</small></td>
+          <td data-label="Service">${esc(a.serviceName)}</td>
+          <td data-label="Fee"><b>₹${a.amount}</b> (${a.paymentMode})</td>
+          <td data-label="Status"><span class="badge ${a.status.toLowerCase()}">${a.status}</span></td>
+          <td data-label="" style="display:flex;gap:6px">
+            <button class="btn sm secondary" onclick="viewApplicationDetail('${a.id}')">Manage</button>
+            <button class="btn sm" onclick="openReceiptModal('${a.id}')">🧾 Receipt</button>
+          </td>
+        </tr>`).join("") || `<tr><td colspan="6">No applications found.</td></tr>`}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function filterApps() {
+  const q = val("appQ").toLowerCase();
+  const st = val("appStFilter");
+  const filtered = scopedApps().filter(a =>
+    (a.id + a.customerName + a.customerMobile + a.serviceName).toLowerCase().includes(q) &&
+    (st === "ALL" || a.status === st)
+  );
+  document.getElementById("appsTableContainer").innerHTML = renderApplicationsTable(filtered);
+}
+
+// 7. SERVICE MANAGEMENT
+function viewServices() {
+  const isAdmin = db.auth.role === "admin";
+  return `
+  <div class="toolbar">
+    <input class="search" id="srvQ" oninput="filterCards('srvQ','srvGrid')" placeholder="🔍 Search service name or category...">
+    ${isAdmin ? `<button class="btn" onclick="modalNewService()">＋ Add Service</button>` : ""}
+  </div>
+  <div class="cards" id="srvGrid" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr))">
+    ${db.services.map(s => `
+      <div class="card srv-item">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <span class="badge processing">${esc(s.category)}</span>
+          <span class="badge ${s.status.toLowerCase()}">${s.status}</span>
+        </div>
+        <h4 style="margin:10px 0 4px;font-size:15px">${esc(s.name)}</h4>
+        <p style="font-size:12px;color:var(--muted);min-height:32px">${esc(s.desc)}</p>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)">
+          <b class="green" style="font-size:18px">₹${s.price}</b>
+          ${isAdmin ? `<button class="btn sm secondary" onclick="modalEditService('${s.id}')">Edit</button>` : `<button class="btn sm" onclick="modalNewApplication('${s.id}')">Book</button>`}
+        </div>
+      </div>`).join("")}
+  </div>`;
+}
+
+// 8, 9, 10. INCOME, EXPENSE & PROFIT
+function viewFinance() {
+  const incs = scopedIncomes();
+  const exps = scopedExpenses();
+  const totalInc = incs.reduce((s, x) => s + Number(x.amount), 0);
+  const totalExp = exps.filter(e => e.status === "Approved").reduce((s, x) => s + Number(x.amount), 0);
+  const netProfit = totalInc - totalExp;
+
+  return `
+  <div class="cards">
+    <div class="card"><span class="label">Total Income</span><div class="value green">₹${totalInc}</div><div class="subtext">Auto + Manual</div></div>
+    <div class="card"><span class="label">Expenses</span><div class="value red">₹${totalExp}</div><div class="subtext">${exps.filter(e=>e.status==='Pending').length} Pending</div></div>
+    <div class="card" style="grid-column:1/-1"><span class="label">Net Profit</span><div class="value ${netProfit>=0?'green':'red'}">₹${netProfit}</div></div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn" onclick="modalNewIncome()">＋ Add Manual Income</button>
+    <button class="btn danger-solid" onclick="modalNewExpense()">＋ Add Expense</button>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-head"><h3>💰 Income Ledger</h3></div>
+      <div class="tablewrap mobile-cards"><table class="table">
+        <thead><tr><th>Date & Title</th><th>Category</th><th>Mode</th><th>Amount</th></tr></thead>
+        <tbody>${incs.map(i => `<tr>
+          <td data-label="Title"><b>${esc(i.title)}</b><br><small>${i.date}</small></td>
+          <td data-label="Category">${esc(i.category)}</td>
+          <td data-label="Mode">${i.mode}</td>
+          <td data-label="Amount" class="green"><b>+₹${i.amount}</b></td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>💸 Expense Ledger</h3></div>
+      <div class="tablewrap mobile-cards"><table class="table">
+        <thead><tr><th>Date & Detail</th><th>Category</th><th>Status</th><th>Amount</th></tr></thead>
+        <tbody>${exps.map(e => `<tr>
+          <td data-label="Detail"><b>${esc(e.title)}</b><br><small>${e.date}</small></td>
+          <td data-label="Category">${esc(e.category)}</td>
+          <td data-label="Status"><span class="badge ${e.status.toLowerCase()}">${e.status}</span>
+            ${db.auth.role==='admin' && e.status==='Pending' ? `<button class="btn sm" onclick="approveExpense('${e.id}')">✓</button>` : ""}
+          </td>
+          <td data-label="Amount" class="red"><b>-₹${e.amount}</b></td>
+        </tr>`).join("")}</tbody>
+      </table></div>
+    </div>
+  </div>`;
+}
+
+// 11 & 13. PAYMENTS & RECEIPTS
+function viewPayments() {
+  const apps = scopedApps();
+  return `
+  <div class="panel">
+    <div class="panel-head"><h3>💳 Payments & Receipts</h3></div>
+    <div class="tablewrap mobile-cards">
+      <table class="table">
+        <thead><tr><th>Receipt / App ID</th><th>Customer</th><th>Amount</th><th>Mode & Ref</th><th>Reconciliation</th><th>Receipt</th></tr></thead>
+        <tbody>
+          ${apps.map(a => `<tr>
+            <td data-label="App ID"><b>${a.id}</b><br><small>${a.date}</small></td>
+            <td data-label="Customer">${esc(a.customerName)}</td>
+            <td data-label="Amount"><b>₹${a.amount}</b></td>
+            <td data-label="Mode">${a.paymentMode} (${esc(a.paymentRef || "-")})</td>
+            <td data-label="Status">
+              <span class="badge ${a.paymentStatus === 'Verified' ? 'completed' : 'pending'}">${a.paymentStatus}</span>
+              ${db.auth.role === 'admin' && a.paymentStatus !== 'Verified' ? `<button class="btn sm secondary" onclick="verifyPayment('${a.id}')">Verify</button>` : ""}
+            </td>
+            <td data-label=""><button class="btn sm" onclick="openReceiptModal('${a.id}')">🖨️ View / Share</button></td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// 14 & 15. REFUNDS & CANCELLATIONS
+function viewRequests() {
+  const isAdmin = db.auth.role === "admin";
+  return `
+  <div class="toolbar">
+    <button class="btn" onclick="modalNewRequest('Refund')">＋ Request Refund</button>
+    <button class="btn warning" onclick="modalNewRequest('Cancellation')">＋ Request Cancellation</button>
+  </div>
+  <div class="panel">
+    <div class="panel-head"><h3>↩️ Refund & Cancellation Requests</h3></div>
+    <div class="tablewrap mobile-cards">
+      <table class="table">
+        <thead><tr><th>Req ID</th><th>Type</th><th>App ID</th><th>Amount</th><th>Reason</th><th>By</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody>
+          ${db.requests.map(r => `<tr>
+            <td data-label="Req ID"><b>${r.id}</b></td>
+            <td data-label="Type"><span class="badge ${r.type==='Refund'?'refunded':'cancelled'}">${r.type}</span></td>
+            <td data-label="App ID"><b>${r.appId}</b></td>
+            <td data-label="Amount">₹${r.amount}</td>
+            <td data-label="Reason">${esc(r.reason)}</td>
+            <td data-label="By">${esc(r.by)} (${r.date})</td>
+            <td data-label="Status"><span class="badge ${r.status.toLowerCase()}">${r.status}</span></td>
+            <td data-label="">
+              ${isAdmin && r.status === "Pending" ? `
+                <button class="btn sm" onclick="handleRequest('${r.id}','Approved')">Approve</button>
+                <button class="btn sm danger" onclick="handleRequest('${r.id}','Rejected')">Reject</button>
+              ` : `<small style="color:var(--muted)">Processed</small>`}
+            </td>
+          </tr>`).join("") || `<tr><td colspan="8">No requests.</td></tr>`}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// 16 & 17. ATTENDANCE & LEAVE
+function viewAttendance() {
+  const isOp = db.auth.role === "operator";
+  return `
+  ${isOp ? `
+  <div class="panel">
+    <div class="panel-head"><h3>📸 Today's Attendance (${todayStr()})</h3><span class="badge processing">Shift: ${db.settings.checkInTime} - ${db.settings.checkOutTime}</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="btn" onclick="markAttendance('in')">📸 Check-In</button>
+      <button class="btn secondary" onclick="markAttendance('out')">🏁 Check-Out</button>
+      <button class="btn warning" style="grid-column:1/-1" onclick="modalNewLeave()">🗓️ Apply Leave</button>
+    </div>
+  </div>` : ""}
+
+  <div class="panel">
+    <div class="panel-head"><h3>🕒 Attendance Register</h3></div>
+    <div class="tablewrap mobile-cards">
+      <table class="table">
+        <thead><tr><th>Date</th><th>Operator</th><th>CSC</th><th>Check-In</th><th>Check-Out</th><th>Status</th><th>Verification</th></tr></thead>
+        <tbody>
+          ${db.attendance.map(a => `<tr>
+            <td data-label="Date">${a.date}</td>
+            <td data-label="Operator"><b>${esc(a.operatorName)}</b> (${a.operatorId})</td>
+            <td data-label="CSC">${esc(cscName(a.cscId))}</td>
+            <td data-label="Check-In">${a.checkIn || "-"}</td>
+            <td data-label="Check-Out">${a.checkOut || "-"}</td>
+            <td data-label="Status"><span class="badge ${a.status.toLowerCase()}">${a.status}</span></td>
+            <td data-label="Note"><small>${esc(a.photoNote)}</small></td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  ${db.auth.role === "operator" ? viewLeavesSection() : ""}`;
+}
+
+function viewLeavesSection() {
+  const isAdmin = db.auth.role === "admin";
+  return `
+  <div class="panel">
+    <div class="panel-head"><h3>🗓️ Leave Requests</h3>${!isAdmin ? `<button class="btn sm" onclick="modalNewLeave()">＋ Apply</button>` : ""}</div>
+    <div class="tablewrap mobile-cards">
+      <table class="table">
+        <thead><tr><th>Operator</th><th>Type</th><th>Dates</th><th>Reason</th><th>Status</th>${isAdmin ? "<th>Action</th>" : ""}</tr></thead>
+        <tbody>
+          ${db.leaves.map(l => `<tr>
+            <td data-label="Operator"><b>${esc(l.operatorName)}</b></td>
+            <td data-label="Type">${esc(l.type)} (${l.paid ? "Paid" : "Unpaid"})</td>
+            <td data-label="Dates">${l.from} to ${l.to}</td>
+            <td data-label="Reason">${esc(l.reason)}</td>
+            <td data-label="Status"><span class="badge ${l.status.toLowerCase()}">${l.status}</span></td>
+            ${isAdmin ? `<td data-label="">${l.status === "Pending" ? `<button class="btn sm" onclick="decideLeave('${l.id}','Approved')">Approve</button> <button class="btn sm danger" onclick="decideLeave('${l.id}','Rejected')">Reject</button>` : "-"}</td>` : ""}
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// 18. SALARY / PAYROLL
+function viewPayroll() {
+  return `
+  <div class="toolbar">
+    <button class="btn" onclick="modalGenerateSalary()">＋ Generate Monthly Salary</button>
+  </div>
+  <div class="tablewrap mobile-cards">
+    <table class="table">
+      <thead><tr><th>Month</th><th>Operator</th><th>Basic</th><th>Bonus</th><th>Deduction / Adv</th><th>Net Salary</th><th>Status</th><th>Payslip</th></tr></thead>
+      <tbody>
+        ${db.payrolls.map(p => `<tr>
+          <td data-label="Month"><b>${p.month}</b></td>
+          <td data-label="Operator">${esc(p.operatorName)} (${p.operatorId})</td>
+          <td data-label="Basic">₹${p.basic}</td>
+          <td data-label="Bonus" class="green">+₹${p.bonus}</td>
+          <td data-label="Deduction" class="red">-₹${Number(p.deduction) + Number(p.advance)}</td>
+          <td data-label="Net Pay"><b>₹${p.net}</b></td>
+          <td data-label="Status"><span class="badge ${p.status.toLowerCase()}">${p.status}</span></td>
+          <td data-label=""><button class="btn sm secondary" onclick="openPayslip('${p.id}')">📄 Payslip</button></td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// 19. REPORTS & CSV EXPORT
+function viewReports() {
+  const types = [
+    ["applications", "Applications"], ["customers", "Customers"],
+    ["incomes", "Income"], ["expenses", "Expense"],
+    ["cscs", "CSCs"], ["operators", "Operators"],
+    ["attendance", "Attendance"], ["payrolls", "Salary"]
+  ];
+  return `
+  <div class="tabs">
+    ${types.map(t => `<button class="tab ${ui.reportType === t[0] ? 'active' : ''}" onclick="ui.reportType='${t[0]}';render()">${t[1]}</button>`).join("")}
+  </div>
+  <div class="toolbar">
+    <button class="btn" onclick="exportCSV('${ui.reportType}')">📥 Export Excel / CSV</button>
+    <button class="btn secondary" onclick="window.print()">🖨️ Print / Save PDF</button>
+  </div>
+  <div class="panel" id="printArea">
+    <div class="panel-head"><h3>📊 ${types.find(x=>x[0]===ui.reportType)[1]} Report</h3><small>${nowStr()}</small></div>
+    <div class="tablewrap mobile-cards">
+      <table class="table">
+        ${buildReportTable(ui.reportType)}
+      </table>
+    </div>
+  </div>`;
+}
+
+function buildReportTable(type) {
+  const data = db[type] || [];
+  if (!data.length) return `<tr><td>No records available.</td></tr>`;
+  const keys = Object.keys(data[0]).filter(k => typeof data[0][k] !== "object");
+  return `<thead><tr>${keys.map(k => `<th>${k.toUpperCase()}</th>`).join("")}</tr></thead>
+          <tbody>${data.map(row => `<tr>${keys.map(k => `<td data-label="${k.toUpperCase()}">${esc(row[k])}</td>`).join("")}</tr>`).join("")}</tbody>`;
+}
+
+function exportCSV(type) {
+  const data = db[type] || [];
+  if (!data.length) return toast("No data to export");
+  const keys = Object.keys(data[0]).filter(k => typeof data[0][k] !== "object");
+  const csv = [keys.join(","), ...data.map(r => keys.map(k => `"${String(r[k] ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `RIVAN_${type}_${todayStr()}.csv`;
+  a.click();
+  toast("CSV Report downloaded!");
+}
+
+// 20. DOCUMENT MANAGEMENT
+function viewDocuments() {
+  return `
+  <div class="toolbar">
+    <input class="search" id="docQ" oninput="filterList('docQ','docBody')" placeholder="🔍 Search customer, document, service...">
+    <button class="btn" onclick="modalNewDocument()">＋ Upload Document Record</button>
+  </div>
+  <div class="tablewrap mobile-cards">
+    <table class="table">
+      <thead><tr><th>Doc ID</th><th>Customer</th><th>Service</th><th>Document Type</th><th>Expiry</th><th>Version</th><th>Action</th></tr></thead>
+      <tbody id="docBody">
+        ${db.documents.map(d => `<tr>
+          <td data-label="Doc ID"><b>${d.id}</b></td>
+          <td data-label="Customer">${esc(d.customerName)}</td>
+          <td data-label="Service">${esc(d.service)}</td>
+          <td data-label="Type">${esc(d.docType)}</td>
+          <td data-label="Expiry">${d.expiry || "No Expiry"}</td>
+          <td data-label="Version"><span class="badge processing">${d.version}</span></td>
+          <td data-label=""><button class="btn sm secondary" onclick="toast('Document metadata verified')">Preview</button></td>
+        </tr>`).join("")}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+// 12 & 21. NOTIFICATIONS & SMS/WHATSAPP LOGS
+function viewNotifications() {
+  return `
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-head"><h3>🔔 Notification Center</h3><button class="btn sm secondary" onclick="db.notifications.forEach(n=>n.read=true);saveDB();render()">Mark All Read</button></div>
+      ${db.notifications.map(n => `
+        <div style="padding:12px;border-bottom:1px solid var(--border);background:${n.read?'transparent':'var(--primary-light)'};border-radius:12px;margin-bottom:8px">
+          <b>${esc(n.title)}</b> <small style="float:right;color:var(--muted)">${n.time}</small>
+          <p style="font-size:12.5px;margin-top:4px">${esc(n.msg)}</p>
+        </div>`).join("")}
+    </div>
+    <div class="panel">
+      <div class="panel-head"><h3>💬 SMS / WhatsApp Log</h3><button class="btn sm" onclick="modalSendSMS()">＋ Send</button></div>
+      ${db.smsLogs.map(s => `
+        <div style="padding:11px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(s.customer)} (${s.to})</b><span class="badge active">${s.channel}</span></div>
+          <p style="font-size:12.5px;margin:5px 0">${esc(s.msg)}</p>
+          <small style="color:var(--muted)">${s.event} • ${s.time}</small>
+        </div>`).join("")}
+    </div>
+  </div>`;
+}
+
+// 22 & 23. BRANDING & SYSTEM SETTINGS
+function viewBranding() {
+  return `
+  <div class="grid2">
+    <div class="panel">
+      <div class="panel-head"><h3>🎨 Branding & Customization</h3></div>
+      <div class="field"><label>App / Business Name</label><input id="bName" value="${esc(db.branding.appName)}"></div><br>
+      <div class="field"><label>Tagline</label><input id="bTag" value="${esc(db.branding.tagline)}"></div><br>
+      <div class="formgrid">
+        <div class="field"><label>Primary Brand Color</label><input id="bColor" type="color" value="${db.branding.primary}" style="height:44px"></div>
+        <div class="field"><label>Theme Mode</label>
+          <select id="bTheme">
+            <option value="light" ${db.branding.theme==='light'?'selected':''}>Light Mode</option>
+            <option value="dark" ${db.branding.theme==='dark'?'selected':''}>Dark Mode</option>
+          </select>
+        </div>
+      </div><br>
+      <div class="field"><label>Receipt Footer</label><input id="bFooter" value="${esc(db.branding.footer)}"></div><br>
+      <button class="btn" style="width:100%" onclick="saveBranding()">Save Branding</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head"><h3>⚙️ System & Attendance Rules</h3></div>
+      <div class="formgrid">
+        <div class="field"><label>Default Check-In</label><input id="sIn" type="time" value="${db.settings.checkInTime}"></div>
+        <div class="field"><label>Default Check-Out</label><input id="sOut" type="time" value="${db.settings.checkOutTime}"></div>
+        <div class="field"><label>Grace Minutes</label><input id="sGrace" type="number" value="${db.settings.graceMinutes}"></div>
+        <div class="field"><label>Direct Expense Limit (₹)</label><input id="sExpLim" type="number" value="${db.settings.expenseApprovalLimit}"></div>
+      </div><br>
+      <button class="btn" style="width:100%" onclick="saveSystemSettings()">Update System Rules</button>
+    </div>
+  </div>`;
+}
+
+// 24 & 25. BACKUP, RESTORE & AUDIT LOGS
+function viewSecurity() {
+  return `
+  <div class="panel">
+    <div class="panel-head"><h3>💾 Local Backup & JSON Export</h3></div>
+    <div style="display:grid;gap:8px">
+      <button class="btn" onclick="downloadBackupJSON()">📥 Download Full Backup (.json)</button>
+      <button class="btn secondary" onclick="createSnapshot()">📸 Save Restore Point</button>
+      <button class="btn danger" onclick="resetDemoData()">🔄 Reset Demo Data</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>🛡️ System Audit Trail</h3></div>
+    <div class="tablewrap mobile-cards">
+      <table class="table">
+        <thead><tr><th>Time</th><th>User & Role</th><th>Module</th><th>Action</th><th>Details</th></tr></thead>
+        <tbody>
+          ${db.auditLogs.slice(0, 30).map(l => `<tr>
+            <td data-label="Time"><small>${l.time}</small></td>
+            <td data-label="User"><b>${esc(l.user)}</b> <span class="badge processing">${l.role}</span></td>
+            <td data-label="Module">${esc(l.module)}</td>
+            <td data-label="Action"><b>${esc(l.action)}</b></td>
+            <td data-label="Detail">${esc(l.detail)}</td>
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>
+  </div>`;
+}
+
+// 29. OPERATOR PROFILE
+function viewProfile() {
+  const op = db.operators.find(o => o.id === db.auth.userId) || db.operators[0];
+  return `
+  <div class="panel" style="max-width:540px;margin:auto">
+    <div style="text-align:center;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div class="login-logo">${esc(op.name[0])}</div>
+      <h3>${esc(op.name)}</h3>
+      <p style="color:var(--muted)">${op.id} • ${esc(cscName(op.cscId))}</p>
+    </div>
+    <div style="margin-top:14px;display:grid;gap:8px">
+      <div class="r-row"><span>Mobile</span><b>${esc(op.mobile)}</b></div>
+      <div class="r-row"><span>Joining Date</span><b>${op.joining}</b></div>
+      <div class="r-row"><span>Basic Salary</span><b>₹${op.basicSalary} / month</b></div>
+      <div class="r-row"><span>Status</span><span class="badge active">${op.status}</span></div>
+    </div>
+    <div style="margin-top:18px;display:grid;gap:8px">
+      <button class="btn secondary" onclick="toast('Password change backend auth ke saath active hoga')">Change Password</button>
+      <button class="btn danger-solid" onclick="logout()">Logout</button>
+    </div>
+  </div>`;
+}
+
+// ==================== MODALS & ACTIONS ====================
+function modalNewCSC() {
+  openModal("🏢 Add New CSC Center", `
+    <div class="formgrid">
+      <div class="field"><label>CSC ID *</label><input id="cId" value="CSC-${String(db.cscs.length+1).padStart(3,'0')}"></div>
+      <div class="field"><label>CSC Name *</label><input id="cName" placeholder="e.g. Sampla Digital CSC"></div>
+      <div class="field"><label>Village / Town *</label><input id="cVil" placeholder="Village"></div>
+      <div class="field"><label>District</label><input id="cDist" value="Rohtak"></div>
+      <div class="field"><label>State</label><input id="cState" value="Haryana"></div>
+      <div class="field"><label>Owner / Manager *</label><input id="cMgr" placeholder="Manager name"></div>
+      <div class="field"><label>Mobile *</label><input id="cMob" type="tel" placeholder="98XXXXXXXX"></div>
+      <div class="field"><label>Status</label><select id="cStat"><option>Active</option><option>Inactive</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCSC()">Save CSC</button></div>
+  `);
+}
+function saveCSC() {
+  const id = val("cId"), name = val("cName"), vil = val("cVil"), mgr = val("cMgr"), mob = val("cMob");
+  if (!id || !name) return toast("CSC ID aur Name required hai");
+  db.cscs.push({ id, name, village: vil, district: val("cDist"), state: val("cState"), mobile: mob, email: "", manager: mgr, open: "09:00", close: "18:00", status: val("cStat") });
+  saveDB("CSC Created", "CSC Centers", `${name} (${id})`);
+  closeModal(); render(); toast("CSC Center added!");
+}
+function toggleCSCStatus(id) {
+  const c = db.cscs.find(x => x.id === id);
+  c.status = c.status === "Active" ? "Inactive" : "Active";
+  saveDB("CSC Status Updated", "CSC Centers", `${c.name} → ${c.status}`);
+  render(); toast("CSC status updated");
+}
+
+function modalNewOperator() {
+  openModal("👨‍💼 Add New Operator", `
+    <div class="formgrid">
+      <div class="field"><label>Operator ID</label><input id="oId" value="OP-${String(db.operators.length+1).padStart(3,'0')}"></div>
+      <div class="field"><label>Full Name *</label><input id="oName" placeholder="Operator name"></div>
+      <div class="field"><label>Mobile *</label><input id="oMob" type="tel" placeholder="10-digit mobile"></div>
+      <div class="field"><label>Assign CSC *</label><select id="oCsc">${db.cscs.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>
+      <div class="field"><label>Basic Salary (₹)</label><input id="oSal" type="number" value="10000"></div>
+      <div class="field"><label>Status</label><select id="oStat"><option>Active</option><option>Pending</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveOperator()">Create Operator</button></div>
+  `);
+}
+function saveOperator() {
+  const name = val("oName"), mob = val("oMob");
+  if (!name || !mob) return toast("Name aur mobile required hai");
+  const id = val("oId");
+  db.operators.push({ id, name, mobile: mob, email: "", cscId: val("oCsc"), pass: "1234", joining: todayStr(), basicSalary: Number(val("oSal") || 10000), status: val("oStat"), deviceApproved: true });
+  saveDB("Operator Created", "Operators", `${name} (${id})`);
+  closeModal(); render(); toast("Operator created!");
+}
+function setOperatorStatus(id, st) {
+  const o = db.operators.find(x => x.id === id);
+  o.status = st;
+  saveDB("Operator Status", "Operators", `${o.name} → ${st}`);
+  render(); toast(`Operator ${st}`);
+}
+function modalEditOperator(id) {
+  const o = db.operators.find(x => x.id === id);
+  openModal("Edit Operator", `
+    <div class="formgrid">
+      <div class="field"><label>Name</label><input id="eoName" value="${esc(o.name)}"></div>
+      <div class="field"><label>Assigned CSC</label><select id="eoCsc">${db.cscs.map(c=>`<option value="${c.id}" ${c.id===o.cscId?'selected':''}>${esc(c.name)}</option>`).join("")}</select></div>
+      <div class="field"><label>Basic Salary (₹)</label><input id="eoSal" type="number" value="${o.basicSalary}"></div>
+      <div class="field"><label>Status</label><select id="eoStat"><option ${o.status==='Active'?'selected':''}>Active</option><option ${o.status==='Inactive'?'selected':''}>Inactive</option><option ${o.status==='Suspended'?'selected':''}>Suspended</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="updateOperator('${id}')">Save</button></div>
+  `);
+}
+function updateOperator(id) {
+  const o = db.operators.find(x => x.id === id);
+  o.name = val("eoName"); o.cscId = val("eoCsc"); o.basicSalary = Number(val("eoSal")); o.status = val("eoStat");
+  saveDB("Operator Updated", "Operators", o.name);
+  closeModal(); render(); toast("Operator updated");
+}
+
+function modalNewCustomer() {
+  const defaultCsc = db.auth.role === "operator" ? db.auth.cscId : db.cscs[0]?.id;
+  openModal("👤 Add New Customer", `
+    <div class="formgrid">
+      <div class="field"><label>Customer Name *</label><input id="cuName" placeholder="Full Name"></div>
+      <div class="field"><label>Mobile Number *</label><input id="cuMob" type="tel" placeholder="98XXXXXXXX"></div>
+      <div class="field"><label>Village / Address *</label><input id="cuVil" placeholder="Village / Ward"></div>
+      <div class="field"><label>District & Pincode</label><input id="cuDist" value="Rohtak - 124113"></div>
+      ${db.auth.role === "admin" ? `<div class="field full"><label>CSC Center</label><select id="cuCsc">${db.cscs.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>` : `<input type="hidden" id="cuCsc" value="${defaultCsc}">`}
+      <div class="field full"><label>Notes / Document Info</label><input id="cuNote" placeholder="e.g. Aadhaar & PPP linked"></div>
+      <div class="field full"><label style="display:flex;align-items:center;gap:8px"><input type="checkbox" id="cuConsent" checked style="width:18px;height:18px"> Customer consent taken</label></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveCustomer()">Save Customer</button></div>
+  `);
+}
+function saveCustomer() {
+  const name = val("cuName"), mobile = val("cuMob");
+  if (!name || !mobile) return toast("Customer Name aur Mobile zaroori hai");
+  const id = "CUST-" + (1001 + db.customers.length);
+  db.customers.unshift({
+    id, name, mobile, altMobile: "", village: val("cuVil") || "Rohtak",
+    district: val("cuDist"), state: "Haryana", pincode: "", consent: true,
+    notes: val("cuNote"), cscId: val("cuCsc") || "CSC-001", createdAt: todayStr()
+  });
+  saveDB("Customer Added", "Customers", `${name} (${id})`);
+  closeModal(); render(); toast("Customer saved!");
+}
+function viewCustomerProfile(id) {
+  const c = db.customers.find(x => x.id === id);
+  const apps = db.applications.filter(a => a.customerId === id);
+  openModal(`👤 ${esc(c.name)} (${c.id})`, `
+    <div style="display:grid;gap:8px;margin-bottom:14px">
+      <div class="r-row"><span>Mobile</span><b>${esc(c.mobile)}</b></div>
+      <div class="r-row"><span>Address</span><b>${esc(c.village)}, ${esc(c.district)}</b></div>
+      <div class="r-row"><span>CSC</span><b>${esc(cscName(c.cscId))}</b></div>
+      <div class="r-row"><span>Notes</span><span>${esc(c.notes || "-")}</span></div>
+    </div>
+    <h4>Application History (${apps.length})</h4>
+    <div style="margin-top:8px">
+      ${apps.map(a => `<div class="r-row"><span><b>${a.id}</b> — ${esc(a.serviceName)}</span><span class="badge ${a.status.toLowerCase()}">${a.status} (₹${a.amount})</span></div>`).join("") || "<p>No applications yet.</p>"}
+    </div>
+    <div class="modal-actions"><button class="btn" onclick="closeModal()">Close</button></div>
+  `);
+}
+
+function modalNewApplication(preServiceId) {
+  const custs = scopedCustomers();
+  if (!custs.length) { toast("Pehle ek customer add karein"); return modalNewCustomer(); }
+  const activeServices = db.services.filter(s => s.status === "Active");
+  const firstSrv = activeServices.find(s => s.id === preServiceId) || activeServices[0];
+
+  openModal("📄 Create New Application", `
+    <div class="formgrid">
+      <div class="field full"><label>Select Customer *</label>
+        <select id="apCust">${custs.map(c => `<option value="${c.id}">${esc(c.name)} (${c.mobile}) — ${c.id}</option>`).join("")}</select>
+      </div>
+      <div class="field full"><label>Select Service *</label>
+        <select id="apSrv" onchange="document.getElementById('apAmt').value=this.selectedOptions[0].dataset.price">
+          ${activeServices.map(s => `<option value="${s.id}" data-price="${s.price}" ${s.id===firstSrv?.id?'selected':''}>${esc(s.name)} — ₹${s.price}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field"><label>Fee Amount (₹) *</label><input id="apAmt" type="number" inputmode="numeric" value="${firstSrv?.price || 30}"></div>
+      <div class="field"><label>Payment Mode</label><select id="apMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select></div>
+      <div class="field"><label>Payment Ref / UTR</label><input id="apRef" placeholder="Optional UTR"></div>
+      <div class="field"><label>Initial Status</label><select id="apStat"><option>Pending</option><option>Processing</option><option>Completed</option></select></div>
+      <div class="field full"><label>Notes / Documents</label><input id="apNote" placeholder="e.g. Aadhaar, Photo, Income proof"></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveApplication()">Create & Receipt</button></div>
+  `);
+}
+
+function saveApplication() {
+  const cust = db.customers.find(c => c.id === val("apCust"));
+  const srv = db.services.find(s => s.id === val("apSrv"));
+  const amt = Number(val("apAmt") || 0);
+  const status = val("apStat");
+  const mode = val("apMode");
+  const ref = val("apRef") || ("REF-" + Math.floor(1000 + Math.random() * 9000));
+  const cscId = db.auth.role === "operator" ? db.auth.cscId : (cust.cscId || "CSC-001");
+  const appId = `RIVAN-2026-${String(db.applications.length + 1).padStart(4, "0")}`;
+
+  const appObj = {
+    id: appId, customerId: cust.id, customerName: cust.name, customerMobile: cust.mobile,
+    serviceId: srv.id, serviceName: srv.name, amount: amt, paymentMode: mode,
+    paymentRef: ref, paymentStatus: mode === "Cash" ? "Pending Verification" : "Verified",
+    status, cscId, operatorId: db.auth.userId, operatorName: db.auth.userName,
+    date: todayStr(), notes: val("apNote"),
+    history: [{ status, by: db.auth.userName, time: nowStr() }]
+  };
+  db.applications.unshift(appObj);
+
+  if (status === "Completed") recordAutoIncome(appObj);
+  db.smsLogs.unshift({
+    id: "SMS-" + (db.smsLogs.length + 1), to: cust.mobile, customer: cust.name,
+    event: "Application Submitted", channel: "WhatsApp",
+    msg: `Namaste ${cust.name}, aapka ${srv.name} (${appId}) ₹${amt} ke saath register ho gaya hai.`,
+    time: nowStr()
+  });
+
+  saveDB("Application Created", "Applications", `${appId} (${srv.name}) - ₹${amt}`);
+  closeModal();
+  render();
+  openReceiptModal(appId);
+}
+
+function recordAutoIncome(appObj) {
+  if (db.incomes.some(i => i.title.includes(appObj.id))) return;
+  db.incomes.unshift({
+    id: "INC-" + String(db.incomes.length + 1).padStart(3, "0"),
+    title: `App: ${appObj.id} (${appObj.serviceName})`,
+    category: "Service Income", amount: appObj.amount, mode: appObj.paymentMode,
+    ref: appObj.paymentRef, cscId: appObj.cscId, operator: appObj.operatorName,
+    date: todayStr(), auto: true
+  });
+}
+
+function viewApplicationDetail(id) {
+  const a = db.applications.find(x => x.id === id);
+  openModal(`📄 ${a.id}`, `
+    <div style="display:grid;gap:7px;margin-bottom:14px">
+      <div class="r-row"><span>Customer</span><b>${esc(a.customerName)} (${a.customerMobile})</b></div>
+      <div class="r-row"><span>Service</span><b>${esc(a.serviceName)}</b></div>
+      <div class="r-row"><span>CSC & Operator</span><span>${esc(cscName(a.cscId))} • ${esc(a.operatorName)}</span></div>
+      <div class="r-row"><span>Fee & Mode</span><b>₹${a.amount} (${a.paymentMode})</b></div>
+      <div class="r-row"><span>Status</span><span class="badge ${a.status.toLowerCase()}">${a.status}</span></div>
+    </div>
+    <div class="field"><label>Update Status (Completed par Income auto-add hogi)</label>
+      <select id="newAppStatus">
+        <option ${a.status==='Pending'?'selected':''}>Pending</option>
+        <option ${a.status==='Processing'?'selected':''}>Processing</option>
+        <option ${a.status==='Completed'?'selected':''}>Completed</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn warning" onclick="closeModal();modalNewRequest('Refund','${a.id}')">Refund Req</button>
+      <button class="btn danger" onclick="closeModal();modalNewRequest('Cancellation','${a.id}')">Cancel Req</button>
+      <button class="btn" onclick="updateApplicationStatus('${a.id}')">Save Status</button>
+    </div>
+  `);
+}
+
+function updateApplicationStatus(id) {
+  const a = db.applications.find(x => x.id === id);
+  const old = a.status;
+  const next = val("newAppStatus");
+  a.status = next;
+  a.history.push({ status: next, by: db.auth.userName, time: nowStr() });
+  if (next === "Completed") recordAutoIncome(a);
+  saveDB("Status Changed", "Applications", `${id}: ${old} → ${next}`);
+  closeModal(); render(); toast(`Status updated to ${next}`);
+}
+
+function openReceiptModal(id) {
+  const a = db.applications.find(x => x.id === id);
+  const waText = encodeURIComponent(`*RIVAN CSC RECEIPT*\nReceipt: ${a.id}\nCustomer: ${a.customerName}\nService: ${a.serviceName}\nAmount: ₹${a.amount} (${a.paymentMode})\nStatus: ${a.status}\nDate: ${a.date}`);
+  openModal("🧾 Digital Receipt", `
+    <div class="receipt-paper" id="printArea">
+      <div style="text-align:center;border-bottom:2px solid #087f45;padding-bottom:10px;margin-bottom:12px">
+        <h2>${esc(db.branding.appName)}</h2>
+        <small>${esc(cscName(a.cscId))} • ${esc(db.branding.contact)}</small>
+      </div>
+      <div class="r-row"><span>Receipt ID:</span><b>${a.id}</b></div>
+      <div class="r-row"><span>Date:</span><span>${a.date}</span></div>
+      <div class="r-row"><span>Customer:</span><b>${esc(a.customerName)}</b></div>
+      <div class="r-row"><span>Mobile:</span><span>${esc(a.customerMobile)}</span></div>
+      <div class="r-row"><span>Service:</span><b>${esc(a.serviceName)}</b></div>
+      <div class="r-row"><span>Payment:</span><span>${a.paymentMode} (${esc(a.paymentRef)})</span></div>
+      <div class="r-row"><span>Status:</span><b>${a.status}</b></div>
+      <div class="r-row" style="font-size:15px;border-top:2px solid #111;margin-top:8px;padding-top:8px"><span>TOTAL PAID:</span><b>₹${a.amount}.00</b></div>
+      <p style="text-align:center;font-size:11px;margin-top:12px;color:#555">${esc(db.branding.footer)}</p>
+    </div>
+    <div class="modal-actions">
+      <a class="btn" style="text-decoration:none;background:#16a34a" target="_blank" href="https://wa.me/91${a.customerMobile.replace(/\D/g,'')}?text=${waText}">📲 WhatsApp Share</a>
+      <button class="btn secondary" onclick="window.print()">🖨️ Print / PDF</button>
+      <button class="btn" onclick="closeModal()">Done</button>
+    </div>
+  `);
+}
+
+function modalNewService() {
+  openModal("🛠️ Add New Service", `
+    <div class="formgrid">
+      <div class="field full"><label>Service Name *</label><input id="sName" placeholder="e.g. Passport / Ration Card"></div>
+      <div class="field"><label>Category</label><input id="sCat" value="Citizen Service"></div>
+      <div class="field"><label>Customer Price (₹) *</label><input id="sPrice" type="number" inputmode="numeric" value="50"></div>
+      <div class="field full"><label>Description</label><input id="sDesc" placeholder="Required documents & info"></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveService()">Save Service</button></div>
+  `);
+}
+function saveService() {
+  const name = val("sName");
+  if (!name) return toast("Service name required");
+  db.services.push({ id: "SRV-" + (db.services.length + 1), name, category: val("sCat"), price: Number(val("sPrice") || 0), desc: val("sDesc"), status: "Active" });
+  saveDB("Service Added", "Services", name);
+  closeModal(); render(); toast("Service added for all CSCs!");
+}
+function modalEditService(id) {
+  const s = db.services.find(x => x.id === id);
+  openModal("Edit Service", `
+    <div class="formgrid">
+      <div class="field full"><label>Service Name</label><input id="esName" value="${esc(s.name)}"></div>
+      <div class="field"><label>Price (₹)</label><input id="esPrice" type="number" value="${s.price}"></div>
+      <div class="field"><label>Status</label><select id="esStat"><option ${s.status==='Active'?'selected':''}>Active</option><option ${s.status==='Inactive'?'selected':''}>Inactive</option></select></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="updateService('${id}')">Update</button></div>
+  `);
+}
+function updateService(id) {
+  const s = db.services.find(x => x.id === id);
+  s.name = val("esName"); s.price = Number(val("esPrice")); s.status = val("esStat");
+  saveDB("Service Updated", "Services", s.name);
+  closeModal(); render(); toast("Service updated");
+}
+
+function modalNewIncome() {
+  openModal("💰 Add Manual Income", `
+    <div class="formgrid">
+      <div class="field full"><label>Description / Title *</label><input id="iTitle" placeholder="e.g. Bulk Printing & Lamination"></div>
+      <div class="field"><label>Category</label><select id="iCat"><option>Printing</option><option>Photocopy</option><option>Photo</option><option>Lamination</option><option>Recharge</option><option>Commission</option><option>Other Income</option></select></div>
+      <div class="field"><label>Amount (₹) *</label><input id="iAmt" type="number" inputmode="numeric"></div>
+      <div class="field"><label>Payment Mode</label><select id="iMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select></div>
+      <div class="field"><label>CSC Center</label><select id="iCsc">${db.cscs.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveIncome()">Add Income</button></div>
+  `);
+}
+function saveIncome() {
+  const title = val("iTitle"), amt = Number(val("iAmt"));
+  if (!title || !amt) return toast("Title aur amount required hai");
+  db.incomes.unshift({ id: "INC-" + (db.incomes.length + 1), title, category: val("iCat"), amount: amt, mode: val("iMode"), ref: "MANUAL", cscId: val("iCsc"), operator: db.auth.userName, date: todayStr(), auto: false });
+  saveDB("Manual Income", "Finance", `${title} +₹${amt}`);
+  closeModal(); render(); toast("Income recorded!");
+}
+
+function modalNewExpense() {
+  openModal("💸 Add Expense Entry", `
+    <div class="formgrid">
+      <div class="field full"><label>Expense Description *</label><input id="eTitle" placeholder="e.g. Electricity Bill / Toner"></div>
+      <div class="field"><label>Category</label><select id="eCat"><option>Stationery</option><option>Electricity</option><option>Internet</option><option>Rent</option><option>Salary</option><option>Maintenance</option><option>Other</option></select></div>
+      <div class="field"><label>Amount (₹) *</label><input id="eAmt" type="number" inputmode="numeric"></div>
+      <div class="field"><label>Payment Mode</label><select id="eMode"><option>Cash</option><option>UPI</option><option>Bank Transfer</option></select></div>
+      <div class="field"><label>CSC Center</label><select id="eCsc">${db.cscs.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn danger-solid" onclick="saveExpense()">Save Expense</button></div>
+  `);
+}
+function saveExpense() {
+  const title = val("eTitle"), amt = Number(val("eAmt"));
+  if (!title || !amt) return toast("Description aur amount required hai");
+  const needsApproval = db.auth.role !== "admin" && amt > db.settings.expenseApprovalLimit;
+  db.expenses.unshift({ id: "EXP-" + (db.expenses.length + 1), title, category: val("eCat"), amount: amt, mode: val("eMode"), ref: "", cscId: val("eCsc"), operator: db.auth.userName, date: todayStr(), status: needsApproval ? "Pending" : "Approved" });
+  saveDB("Expense Added", "Finance", `${title} -₹${amt}`);
+  closeModal(); render(); toast(needsApproval ? "Sent for Admin approval" : "Expense recorded!");
+}
+function approveExpense(id) {
+  const e = db.expenses.find(x => x.id === id);
+  e.status = "Approved";
+  saveDB("Expense Approved", "Finance", `${e.title} ₹${e.amount}`);
+  render(); toast("Expense approved");
+}
+
+function verifyPayment(appId) {
+  const a = db.applications.find(x => x.id === appId);
+  a.paymentStatus = "Verified";
+  saveDB("Payment Verified", "Payments", appId);
+  render(); toast("Payment reconciled!");
+}
+
+function modalNewRequest(type, preAppId) {
+  const apps = scopedApps();
+  openModal(`↩️ New ${type} Request`, `
+    <div class="formgrid">
+      <div class="field full"><label>Select Application *</label>
+        <select id="rqApp">${apps.map(a => `<option value="${a.id}" ${a.id===preAppId?'selected':''}>${a.id} — ${esc(a.customerName)} (₹${a.amount})</option>`).join("")}</select>
+      </div>
+      <div class="field full"><label>Reason *</label><textarea id="rqReason" rows="3" placeholder="Explain clearly for Admin audit..."></textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveRequest('${type}')">Submit to Admin</button></div>
+  `);
+}
+function saveRequest(type) {
+  const appId = val("rqApp"), reason = val("rqReason");
+  if (!reason) return toast("Reason likhna zaroori hai");
+  const a = db.applications.find(x => x.id === appId);
+  db.requests.unshift({ id: "REQ-" + String(db.requests.length + 1).padStart(3, "0"), type, appId, amount: a?.amount || 0, reason, by: db.auth.userName, cscId: a?.cscId || "CSC-001", date: todayStr(), status: "Pending" });
+  db.notifications.unshift({ id: "NOT-" + Date.now(), title: `New ${type} Request`, msg: `${db.auth.userName} requested ${type} for ${appId}`, time: "Just now", read: false });
+  saveDB(`${type} Requested`, "Requests", `${appId}: ${reason}`);
+  closeModal(); render(); toast(`${type} request submitted!`);
+}
+function handleRequest(id, decision) {
+  const r = db.requests.find(x => x.id === id);
+  r.status = decision;
+  if (decision === "Approved") {
+    const a = db.applications.find(x => x.id === r.appId);
+    if (a) a.status = r.type === "Refund" ? "Refunded" : "Cancelled";
+  }
+  saveDB(`${r.type} ${decision}`, "Requests", `${r.appId} (${r.id})`);
+  render(); toast(`Request ${decision}!`);
+}
+
+function markAttendance(dir) {
+  const today = todayStr();
+  const time = new Date().toTimeString().slice(0, 5);
+  let rec = db.attendance.find(a => a.operatorId === db.auth.userId && a.date === today);
+  if (dir === "in") {
+    if (rec) return toast("Aaj ka Check-In pehle hi ho chuka hai!");
+    const isLate = time > db.settings.checkInTime;
+    db.attendance.unshift({ id: "ATT-" + Date.now(), operatorId: db.auth.userId, operatorName: db.auth.userName, cscId: db.auth.cscId, date: today, checkIn: time, checkOut: "", status: isLate ? "Late" : "Present", photoNote: "Mobile Timestamp Verified" });
+    saveDB("Check-In", "Attendance", `${db.auth.userName} at ${time}`);
+    render(); toast(`Checked-In at ${time}`);
+  } else {
+    if (!rec) return toast("Pehle Check-In karein!");
+    rec.checkOut = time;
+    saveDB("Check-Out", "Attendance", `${db.auth.userName} at ${time}`);
+    render(); toast(`Checked-Out at ${time}`);
+  }
+}
+
+function modalNewLeave() {
+  openModal("🗓️ Apply Leave", `
+    <div class="formgrid">
+      <div class="field"><label>Leave Type</label><select id="lvType"><option>Casual Leave</option><option>Sick Leave</option><option>Emergency</option></select></div>
+      <div class="field"><label>Pay Type</label><select id="lvPaid"><option value="1">Paid Leave</option><option value="0">Unpaid Leave</option></select></div>
+      <div class="field"><label>From Date</label><input id="lvFrom" type="date" value="${todayStr()}"></div>
+      <div class="field"><label>To Date</label><input id="lvTo" type="date" value="${todayStr()}"></div>
+      <div class="field full"><label>Reason *</label><input id="lvReason" placeholder="Reason for leave"></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveLeave()">Submit Leave</button></div>
+  `);
+}
+function saveLeave() {
+  const reason = val("lvReason");
+  if (!reason) return toast("Reason required");
+  db.leaves.unshift({ id: "LV-" + Date.now(), operatorId: db.auth.userId, operatorName: db.auth.userName, type: val("lvType"), from: val("lvFrom"), to: val("lvTo"), reason, paid: val("lvPaid") === "1", status: "Pending" });
+  saveDB("Leave Applied", "Leave", `${db.auth.userName}: ${reason}`);
+  closeModal(); render(); toast("Leave request sent!");
+}
+function decideLeave(id, st) {
+  const l = db.leaves.find(x => x.id === id);
+  l.status = st;
+  saveDB("Leave " + st, "Leave", l.operatorName);
+  render(); toast(`Leave ${st}`);
+}
+
+function modalGenerateSalary() {
+  openModal("💵 Generate Monthly Salary", `
+    <div class="formgrid">
+      <div class="field full"><label>Select Operator</label><select id="pyOp">${db.operators.map(o=>`<option value="${o.id}" data-sal="${o.basicSalary}">${esc(o.name)} (Basic: ₹${o.basicSalary})</option>`).join("")}</select></div>
+      <div class="field"><label>Month</label><input id="pyMonth" type="month" value="2026-11"></div>
+      <div class="field"><label>Bonus (₹)</label><input id="pyBonus" type="number" value="0"></div>
+      <div class="field"><label>Deduction (₹)</label><input id="pyDed" type="number" value="0"></div>
+      <div class="field"><label>Advance Adjusted (₹)</label><input id="pyAdv" type="number" value="0"></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveSalary()">Generate Payslip</button></div>
+  `);
+}
+function saveSalary() {
+  const op = db.operators.find(o => o.id === val("pyOp"));
+  const bonus = Number(val("pyBonus") || 0), ded = Number(val("pyDed") || 0), adv = Number(val("pyAdv") || 0);
+  const net = op.basicSalary + bonus - ded - adv;
+  db.payrolls.unshift({ id: "PAY-" + (db.payrolls.length + 1), operatorId: op.id, operatorName: op.name, month: val("pyMonth"), basic: op.basicSalary, bonus, deduction: ded, advance: adv, net, status: "Paid" });
+  saveDB("Salary Generated", "Payroll", `${op.name} - ₹${net}`);
+  closeModal(); render(); toast("Salary processed!");
+}
+function openPayslip(id) {
+  const p = db.payrolls.find(x => x.id === id);
+  openModal("📄 Salary Payslip", `
+    <div class="receipt-paper" id="printArea">
+      <h2 style="text-align:center">${esc(db.branding.appName)} — PAYSLIP</h2>
+      <p style="text-align:center;font-size:12px;margin-bottom:12px">Salary Month: ${p.month}</p>
+      <div class="r-row"><span>Employee:</span><b>${esc(p.operatorName)} (${p.operatorId})</b></div>
+      <div class="r-row"><span>Basic Salary:</span><span>₹${p.basic}</span></div>
+      <div class="r-row"><span>Bonus:</span><span>+₹${p.bonus}</span></div>
+      <div class="r-row"><span>Deductions:</span><span>-₹${Number(p.deduction)+Number(p.advance)}</span></div>
+      <div class="r-row" style="font-size:15px;border-top:2px solid #111;margin-top:8px"><span>NET PAYABLE:</span><b>₹${p.net}</b></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="window.print()">🖨️ Print</button><button class="btn" onclick="closeModal()">Close</button></div>
+  `);
+}
+
+function modalNewDocument() {
+  const custs = scopedCustomers();
+  openModal("📁 Add Document Record", `
+    <div class="formgrid">
+      <div class="field full"><label>Customer</label><select id="dcCust">${custs.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select></div>
+      <div class="field"><label>Service</label><input id="dcSrv" value="Income Certificate"></div>
+      <div class="field"><label>Document Type *</label><input id="dcType" placeholder="e.g. Aadhaar / Ration Card"></div>
+      <div class="field"><label>Expiry Date</label><input id="dcExp" type="date"></div>
+      <div class="field"><label>Version</label><input id="dcVer" value="v1"></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="saveDocument()">Save Record</button></div>
+  `);
+}
+function saveDocument() {
+  const cust = db.customers.find(c => c.id === val("dcCust"));
+  const docType = val("dcType");
+  if (!docType) return toast("Document type required");
+  db.documents.unshift({ id: "DOC-" + (db.documents.length + 1), customerId: cust.id, customerName: cust.name, service: val("dcSrv"), docType, expiry: val("dcExp"), version: val("dcVer"), uploadedBy: db.auth.userName, date: todayStr() });
+  saveDB("Document Logged", "Documents", `${cust.name} - ${docType}`);
+  closeModal(); render(); toast("Document record saved!");
+}
+
+function modalSendSMS() {
+  openModal("💬 Send Notification", `
+    <div class="formgrid">
+      <div class="field"><label>Mobile Number *</label><input id="smTo" type="tel" placeholder="98XXXXXXXX"></div>
+      <div class="field"><label>Channel</label><select id="smCh"><option>WhatsApp</option><option>SMS (Backend Gateway)</option></select></div>
+      <div class="field full"><label>Message *</label><textarea id="smMsg" rows="3">Namaste, RIVAN CSC se aapka document ready hai. Kripya center se collect karein.</textarea></div>
+    </div>
+    <div class="modal-actions"><button class="btn secondary" onclick="closeModal()">Cancel</button><button class="btn" onclick="sendSMS()">Send & Log</button></div>
+  `);
+}
+function sendSMS() {
+  const to = val("smTo"), msg = val("smMsg"), ch = val("smCh");
+  if (!to || !msg) return toast("Mobile aur message required");
+  db.smsLogs.unshift({ id: "SMS-" + Date.now(), to, customer: "Customer", event: "Manual Alert", channel: ch, msg, time: nowStr() });
+  saveDB("Message Sent", "Notifications", `${ch} to ${to}`);
+  closeModal(); render();
+  if (ch === "WhatsApp") window.open(`https://wa.me/91${to.replace(/\D/g,'')}?text=${encodeURIComponent(msg)}`, "_blank");
+  toast("Message logged!");
+}
+
+function saveBranding() {
+  db.branding.appName = val("bName") || "RIVAN CSC Manager";
+  db.branding.tagline = val("bTag");
+  db.branding.primary = val("bColor");
+  db.branding.theme = val("bTheme");
+  db.branding.footer = val("bFooter");
+  saveDB("Branding Updated", "Branding", db.branding.appName);
+  render(); toast("Branding applied!");
+}
+function saveSystemSettings() {
+  db.settings.checkInTime = val("sIn");
+  db.settings.checkOutTime = val("sOut");
+  db.settings.graceMinutes = Number(val("sGrace"));
+  db.settings.expenseApprovalLimit = Number(val("sExpLim"));
+  saveDB("Settings Updated", "Settings", "System rules updated");
+  toast("System rules saved!");
+}
+
+function downloadBackupJSON() {
+  const blob = new Blob([JSON.stringify(db, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `RIVAN_CSC_Backup_${todayStr()}.json`;
+  a.click();
+  toast("Full JSON Backup downloaded!");
+}
+function createSnapshot() {
+  db.backups.unshift({ id: "BKP-" + Date.now(), date: nowStr(), type: "Manual Local Snapshot", by: db.auth.userName, status: "Saved" });
+  saveDB("Backup Snapshot", "Security", "Manual snapshot created");
+  render(); toast("Local backup snapshot saved!");
+}
+function resetDemoData() {
+  if (!confirm("Kya aap saara local data reset karke default demo data load karna chahte hain?")) return;
+  db = getDefaultDB();
+  saveDB();
+  render();
+  toast("App reset to fresh demo state!");
+}
+
+function filterList(inputId, tbodyId) {
+  const q = val(inputId).toLowerCase();
+  document.querySelectorAll(`#${tbodyId} tr`).forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+}
+function filterCards(inputId, gridId) {
+  const q = val(inputId).toLowerCase();
+  document.querySelectorAll(`#${gridId} .srv-item`).forEach(card => {
+    card.style.display = card.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+}
+
+// ==================== MASTER RENDER ====================
+function render() {
+  applyBranding();
+  const root = document.getElementById("root");
+  if (!db.auth.loggedIn) {
+    root.innerHTML = renderLogin();
+    return;
+  }
+
+  const menu = getMenu();
+  const allItems = menu.flatMap(g => g.items);
+  const currentItem = allItems.find(i => i.id === ui.view) || allItems[0];
+  const unreadCount = db.notifications.filter(n => !n.read).length;
+
+  const viewMap = {
+    dashboard: viewDashboard, cscs: viewCSCs, operators: viewOperators,
+    customers: viewCustomers, applications: viewApplications, services: viewServices,
+    finance: viewFinance, payments: viewPayments, requests: viewRequests,
+    attendance: viewAttendance, leaves: viewLeavesSection, payroll: viewPayroll,
+    reports: viewReports, documents: viewDocuments, notifications: viewNotifications,
+    branding: viewBranding, security: viewSecurity, profile: viewProfile
+  };
+
+  root.innerHTML = `
+  <div class="app">
+    <div class="backdrop ${ui.drawerOpen ? 'show' : ''}" onclick="ui.drawerOpen=false;render()"></div>
+    <aside class="sidebar ${ui.drawerOpen ? 'open' : ''}">
+      <div class="brand">
+        <div class="logo">CSC</div>
+        <div><h1>${esc(db.branding.appName)}</h1><small>${db.auth.role === 'admin' ? 'Super Admin Panel' : esc(cscName(db.auth.cscId))}</small></div>
+      </div>
+      ${menu.map(g => `
+        <div class="nav-group">${g.group}</div>
+        <nav class="nav">
+          ${g.items.map(i => `
+            <button class="${ui.view === i.id ? 'active' : ''}" onclick="go('${i.id}')">
+              <span>${i.icon}</span> ${i.label}
+              ${i.badge ? `<span class="nav-badge">${i.badge}</span>` : ""}
+            </button>`).join("")}
+        </nav>`).join("")}
+      <div style="margin-top:20px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.12)">
+        <button class="nav" style="width:100%;color:#ffb4b4;padding:11px 12px;background:transparent;text-align:left;border-radius:12px" onclick="logout()">🚪 Logout / Switch Role</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top">
+        <div class="top-left">
+          <button class="menu-btn" onclick="ui.drawerOpen=!ui.drawerOpen;render()">☰</button>
+          <h2>${currentItem.icon} ${currentItem.label}</h2>
+        </div>
+        <div class="top-right">
+          <button class="iconbtn" title="Theme" onclick="db.branding.theme=db.branding.theme==='dark'?'light':'dark';saveDB();render()">${db.branding.theme==='dark'?'☀️':'🌙'}</button>
+          <button class="iconbtn" title="Alerts" onclick="go('notifications')">🔔${unreadCount ? '<span class="dot"></span>' : ''}</button>
+          <button class="avatar" onclick="logout()">${db.auth.role === 'admin' ? '👑 Admin' : '👨‍💼 Op'}</button>
+        </div>
+      </header>
+
+      <section class="content">
+        ${(viewMap[ui.view] || viewDashboard)()}
+      </section>
+    </main>
+
+    <!-- Native Mobile App Bottom Navigation -->
+    <nav class="bottom">
+      <button class="${ui.view==='dashboard'?'active':''}" onclick="go('dashboard')"><span>🏠</span>Home</button>
+      <button class="${ui.view==='customers'?'active':''}" onclick="go('customers')"><span>👥</span>Customers</button>
+      <button class="fab" onclick="modalNewApplication()" title="New Application">＋</button>
+      <button class="${ui.view==='applications'?'active':''}" onclick="go('applications')"><span>📄</span>Apps</button>
+      <button class="${ui.view==='reports'?'active':''}" onclick="go('reports')"><span>📊</span>Reports</button>
+    </nav>
+  </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
